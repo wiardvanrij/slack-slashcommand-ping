@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: slackping
+  labels:
+    app: slackping
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: slackping
+    tier: frontend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slackping
+  labels:
+    app: slackping
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: slackping
+      tier: frontend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: slackping
+        tier: frontend
+    spec:
+      containers:
+        - image: wiardvanrij/slackping:latest
+          env:
+          - name: CLIENTID
+            value: "USE YOUR OWN HERE"
+          - name: CLIENTSECRET
+            value: "USE YOUR OWN HERE"
+          - name: SIGNINGSECRET
+            value: "USE YOUR OWN HERE"
+          name: slackping
+          resources:
+            limits:
+              memory: "150Mi"
+              cpu: "100m"
